@@ -83,7 +83,7 @@
         if ($('#stdin').length > 0) {
           stdin = $("#stdin").val();
         }
-        $.post("http://192.168.142.132:3000/compile", {
+        $.post("http://192.168.1.108:3333/compile", {
           code: code,
           param: stdin,
         }, (data) => {

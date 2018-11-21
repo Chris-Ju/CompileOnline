@@ -41,7 +41,7 @@ router.post('/compile', (req, res, next) => {
   });
   
 }, (req, res, next) => {
-  Run.Run(name, req.body.param).then((value) => {
+  Run.Run(name, decodeURI(req.body.param)).then((value) => {
     console.log("Run Successfully!")
     console.log("-------------------------");
     console.log("Output:\n" + value);

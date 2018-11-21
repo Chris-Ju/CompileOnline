@@ -1,5 +1,91 @@
-extends layout
-
-block content
-  h1= title
-  p Welcome to #{title}
+doctype html
+html
+  head
+    meta(http-equiv='Content-Type', content='text/html; charset=UTF-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    title C++ 在线编译器
+    meta(name='keywords', content='C++ 在线工具')
+    script(src='javascripts/codemirror.min.js')
+    link(href='stylesheets/codemirror.min.css', rel='stylesheet')
+    link(href='stylesheets/normalize.min.css', rel='stylesheet')
+    // Bootstrap Core CSS
+    link(href='stylesheets/bootstrap.min.css', rel='stylesheet')
+    // Custom CSS
+    link(href='stylesheets/modern-business.css', rel='stylesheet')
+    // Custom Fonts
+    link(type='text/css', href='stylesheets/font-awesome.min.css', rel='stylesheet')
+    link(href='stylesheets/style.css', rel='stylesheet')
+    // jQuery
+    script(src='javascripts/jquery.min.js')
+  body(cz-shortcut-listen='true')
+    .container
+      style.
+        .CodeMirror {
+        height: 374px;
+        }
+      br
+      .row
+        .col-md-12
+          .panel.panel-default
+            #compiler.panel-heading
+              form.form-inline(role='form')
+                button#submitBTN.btn.btn-success(type='button', disabled='') 点击运行
+                button#clearCode.btn.btn-default(type='button') 清空
+                input#stdin.form-control(name='stdin', type='text', placeholder='标准输入(stdin)')
+            .panel-body
+              form#compiler-form(role='form')
+                .form-group
+                  .row
+                    .col-md-7
+                      textarea#code.form-control(name='code', rows='18', style='display: none;')
+                    .col-md-5
+                      textarea#compiler-textarea-result.form-control(placeholder='运行结果……', rows='18', readonly='readonly')
+      script.
+        var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-c++src",
+        indentUnit: 2,
+        indentWithTabs: true,
+        });
+        btn = $("#submitBTN");
+        editor.on("change", function (editor, change) {
+        btn.prop('disabled', false);
+        });
+        btn.click(function () {
+        btn.prop('disabled', true);
+        loadingdata = '程序正在运行中……';
+        $("#compiler-textarea-result").val(loadingdata);
+        code = editor.getValue();
+        stdin = '';
+        if ($('#stdin').length > 0) {
+        stdin = $("#stdin").val();
+        }
+        $.post("http://192.168.142.132:3000/compile", {
+        code: code,
+        param: stdin,
+        }, (data) => {
+        $("#compiler-textarea-result").val(data);
+        });
+        });
+        $("#clearCode").click(function () {
+        var r = confirm("确认清空？");
+        if (r == true) {
+        editor.setValue("");
+        editor.clearHistory();
+        $("#compiler-textarea-result").val("");
+        btn.prop('disabled', true);
+        }
+        });
+        $(function () {
+        // bind change event to select
+        $('#sel1').on('change', function () {
+        var url = $(this).val(); // get selected value
+        if (url) { // require a URL
+        window.location = url; // redirect
+        }
+        return false;
+        });
+        });
+      script(src='javascripts/bootstrap.min.js')

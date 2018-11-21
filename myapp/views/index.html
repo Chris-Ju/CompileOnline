@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>C++ 在线编译器</title>
+  <meta name="keywords" content="C++ 在线工具">
+  <script src="javascripts/codemirror.min.js"></script>
+  <link rel="stylesheet" href="stylesheets/codemirror.min.css">
+
+  <link href="stylesheets/normalize.min.css" rel="stylesheet">
+  <!-- Bootstrap Core CSS -->
+  <link href="stylesheets/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="stylesheets/modern-business.css" rel="stylesheet">
+  <!-- Custom Fonts -->
+  <link href="stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+  <link rel="stylesheet" href="stylesheets/style.css">
+  <!-- jQuery -->
+  <script src="javascripts/jquery.min.js"></script>
+</head>
+
+<body cz-shortcut-listen="true">
+  <div class="container">
+    <style>
+      .CodeMirror {
+	    height: 374px;
+    }
+    </style>
+    <br>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="panel panel-default">
+          <div id="compiler" class="panel-heading">
+            <form class="form-inline" role="form">
+              <button type="button" class="btn btn-success" id="submitBTN" disabled="">点击运行</button>
+              <button type="button" class="btn btn-default" id="clearCode">清空</button>
+              <input type="text" class="form-control" name="stdin" id="stdin" placeholder="标准输入(stdin)">
+            </form>
+          </div>
+          <div class="panel-body">
+            <form role="form" id="compiler-form">
+              <div class="form-group">
+                <div class="row">
+                  <div class="col-md-7">
+                    <textarea class="form-control" id="code" name="code" rows="18" style="display: none;"></textarea>
+                  </div>
+                  <div class="col-md-5">
+                    <textarea placeholder="运行结果……" class="form-control" id="compiler-textarea-result" rows="18"
+                      readonly="readonly"></textarea>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-c++src",
+        indentUnit: 2,
+        indentWithTabs: true,
+      });
+      btn = $("#submitBTN");
+      editor.on("change", function (editor, change) {
+        btn.prop('disabled', false);
+      });
+      btn.click(function () {
+        btn.prop('disabled', true);
+        loadingdata = '程序正在运行中……';
+        $("#compiler-textarea-result").val(loadingdata);
+        code = editor.getValue();
+        stdin = '';
+        if ($('#stdin').length > 0) {
+          stdin = $("#stdin").val();
+        }
+        $.post("http://192.168.142.132:3000/compile", {
+          code: code,
+          param: stdin,
+        }, (data) => {
+          $("#compiler-textarea-result").val(data);
+        });
+      });
+      $("#clearCode").click(function () {
+        var r = confirm("确认清空？");
+        if (r == true) {
+          editor.setValue("");
+          editor.clearHistory();
+          $("#compiler-textarea-result").val("");
+          btn.prop('disabled', true);
+        }
+      });
+      $(function () {
+        // bind change event to select
+        $('#sel1').on('change', function () {
+          var url = $(this).val(); // get selected value
+          if (url) { // require a URL
+            window.location = url; // redirect
+          }
+          return false;
+        });
+      });
+    </script>
+
+
+    <script src="javascripts/bootstrap.min.js"></script>
+
+
+
+</body>
+
+</html>

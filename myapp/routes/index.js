@@ -8,13 +8,11 @@ var name = "";
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
-  res.render('index', {
-    title: 'Express'
-  });
+  res.render('index');
 });
 
 router.post('/compile', (req, res, next) => {
-  let data = decodeURI(req.body.data);
+  let data = decodeURI(req.body.code);
   SaveToFile.saveToFile(data).then((value) => {
     console.log("Save File Successfully!");
     console.log("-------------------------");
@@ -26,20 +24,22 @@ router.post('/compile', (req, res, next) => {
     console.log("Save File Failed!");
     let err = new Error(value);
     err.status = 500;
-    next(err);
+    res.status(200).send(err.message);
+    //next(err);
   });
 }, (req, res, next) => {
-  CompileFile.ComplieFile(name).then((value) =>{
+  CompileFile.ComplieFile(name).then((value) => {
     console.log("Compile File Successfully!");
     name = value;
     next();
-  }, (value)=>{
+  }, (value) => {
     console.log(value);
     let err = new Error("Compiled Failed! Please check grammer!");
     err.status = 500;
-    next(err);
+    //next(err);
+    res.status(200).send(err.message);
   });
-  
+
 }, (req, res, next) => {
   Run.Run(name, decodeURI(req.body.param)).then((value) => {
     console.log("Run Successfully!")
@@ -54,7 +54,8 @@ router.post('/compile', (req, res, next) => {
     if (value.killed) {
       err.message = "Time Limited";
     }
-    next(err);
+    res.status(200).send(err.message);
+    //next(err);
   });
 });
 
